@@ -1,4 +1,9 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
 <title>Photo Contest Radar</title>
 <meta name="description" content="Photography competitions you can enter from India, with rules, fees, AI rules and rights for each, plus photography events around Hyderabad.">
 <meta name="theme-color" content="#c2361f" media="(prefers-color-scheme: light)">
@@ -123,6 +128,8 @@ h2{font-family:var(--display);font-weight:500;font-size:18px;margin:34px 0 10px;
 @media (max-width:520px){.frame{grid-template-columns:70px 1fr}.edge .day{font-size:24px}.count{margin-left:0;width:100%}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
+</head>
+<body>
 
 <div class="wrap">
   <header>
@@ -131,8 +138,8 @@ h2{font-family:var(--display);font-weight:500;font-size:18px;margin:34px 0 10px;
     <p class="sub">Photography competitions you can enter from India, plus photowalks, workshops, exhibitions and festivals around Hyderabad. Open any card's rules panel to see who can enter, file specs, AI rules and rights. A scheduled search adds new ones twice a month.</p>
     <span class="scan" id="scan">Loading the list…</span>
     <div class="installrow">
-      <button class="chip install" id="install" hidden>Install app</button>
-      <span class="note" id="ioshint" hidden>On iPhone: tap Share, then Add to Home Screen.</span>
+      <button class="chip install" id="install" aria-expanded="false" aria-controls="installhelp">Install app</button>
+      <p class="note" id="installhelp" hidden></p>
     </div>
   </header>
 
@@ -467,12 +474,34 @@ h2{font-family:var(--display);font-weight:500;font-size:18px;margin:34px 0 10px;
 
   /* ---------- install ---------- */
   if("serviceWorker" in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){})});
-  var deferred=null,ib=document.getElementById("install");
-  window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();deferred=e;ib.hidden=false});
-  ib.addEventListener("click",async function(){if(!deferred)return;deferred.prompt();try{await deferred.userChoice}catch(e){}deferred=null;ib.hidden=true});
-  window.addEventListener("appinstalled",function(){ib.hidden=true});
-  var standalone=window.matchMedia("(display-mode: standalone)").matches||navigator.standalone;
-  if(/iphone|ipad|ipod/i.test(navigator.userAgent)&&!standalone)document.getElementById("ioshint").hidden=false;
+  /* The button is always shown. Chrome's own prompt is used when the browser offers one;
+     otherwise the button explains how to install in this browser. */
+  var deferred=null,ib=document.getElementById("install"),help=document.getElementById("installhelp");
+  var ua=navigator.userAgent;
+  var standalone=window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+  function howTo(){
+    if(/iphone|ipad|ipod/i.test(ua)){
+      if(/crios|fxios|edgios/i.test(ua))return "On iPhone, open this page in Safari, then tap Share and choose Add to Home Screen.";
+      return "Tap the Share button at the bottom of Safari, scroll down, and choose Add to Home Screen.";
+    }
+    if(/; wv\)|fban|fbav|instagram|line\/|gsa\//i.test(ua))
+      return "This page is open inside another app, which can't install it. Tap the menu and choose Open in Chrome, then use ⋮ → Install app.";
+    if(/samsungbrowser/i.test(ua))return "Tap the menu (≡) at the bottom and choose Add page to → Home screen.";
+    if(/firefox/i.test(ua))return "Tap ⋮ and choose Install, or Add to Home screen.";
+    if(/android/i.test(ua))return "Tap ⋮ at the top right of Chrome and choose Install app (or Add to Home screen → Install). If it isn't listed yet, reload the page once and try again.";
+    return "In Chrome or Edge, click the install icon at the right end of the address bar, or open the browser menu and choose Install Photo Contest Radar.";
+  }
+  if(standalone)ib.parentNode.hidden=true;
+  window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();deferred=e});
+  ib.addEventListener("click",async function(){
+    if(deferred){
+      deferred.prompt();
+      try{var r=await deferred.userChoice;if(r&&r.outcome==="accepted")ib.parentNode.hidden=true}catch(e){}
+      deferred=null;return;
+    }
+    var open=help.hidden;help.textContent=howTo();help.hidden=!open;ib.setAttribute("aria-expanded",String(open));
+  });
+  window.addEventListener("appinstalled",function(){ib.parentNode.hidden=true});
 })();
 </script>
 

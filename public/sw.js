@@ -4,7 +4,7 @@
  *   (/data/radar.json) is fetched fresh when online, with the cached copy
  *   as the offline fallback, so new contests show up as soon as they're pushed.
  */
-const CACHE = "pcr-shell-v1";
+const CACHE = "pcr-shell-v2";
 const DATA = "/data/radar.json";
 const SHELL = ["/", "/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png", DATA];
 
