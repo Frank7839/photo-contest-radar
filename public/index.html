@@ -1,0 +1,479 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Photo Contest Radar</title>
+<meta name="description" content="Photography competitions you can enter from India, with rules, fees, AI rules and rights for each, plus photography events around Hyderabad.">
+<meta name="theme-color" content="#c2361f" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Contest Radar">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one column contact-sheet list, each contest or event a "frame" with its date as the edge marking */
+:root{
+  --bg:#f4f4f1; --surface:#ffffff; --fg:#1c1d1f; --muted:#62656b; --line:#dcdcd6;
+  --accent:#c2361f; --accent-soft:#f6e1dc; --on-accent:#ffffff;
+  --ok:#2f7a4a; --ok-soft:#dcefe2; --warn:#9a6a00; --warn-soft:#f6ebcc; --bad:#b0281a; --bad-soft:#f7dcd8;
+  --local:#1f5f9a; --local-soft:#dde9f5;
+  --display:"Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+  --body:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121212; --surface:#1b1b1c; --fg:#ececea; --muted:#9b9da2; --line:#2e2f31;
+  --accent:#ff6a4d; --accent-soft:#3a1d17; --on-accent:#1a0d0a;
+  --ok:#6cc58c; --ok-soft:#173222; --warn:#e8b84a; --warn-soft:#352a10; --bad:#ff7b6b; --bad-soft:#3a1a16;
+  --local:#7cb5ea; --local-soft:#16283a;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121212; --surface:#1b1b1c; --fg:#ececea; --muted:#9b9da2; --line:#2e2f31;
+  --accent:#ff6a4d; --accent-soft:#3a1d17; --on-accent:#1a0d0a;
+  --ok:#6cc58c; --ok-soft:#173222; --warn:#e8b84a; --warn-soft:#352a10; --bad:#ff7b6b; --bad-soft:#3a1a16;
+  --local:#7cb5ea; --local-soft:#16283a;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:880px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:32px 56px}
+header{display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,6vw,44px);line-height:1.05;margin:0;text-wrap:balance;letter-spacing:-.01em}
+.sub{color:var(--muted);max-width:62ch;margin:0}
+.scan{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+.views{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-top:8px;flex-wrap:wrap}
+.view{all:unset;cursor:pointer;font-family:var(--display);font-weight:500;font-size:17px;padding:8px 12px 10px;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-1px}
+.view[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent)}
+.view:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.view .n{font-family:var(--mono);font-size:12px;color:var(--muted);margin-left:4px}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:16px 0 14px}
+.chip{font:500 13px var(--body);border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:6px 12px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.chip:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.count{margin-left:auto;font-family:var(--mono);font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.citybar{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--muted)}
+.list{display:flex;flex-direction:column;gap:10px}
+.frame{display:grid;grid-template-columns:92px 1fr;background:var(--surface);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.edge{border-right:1px dashed var(--line);padding:14px 10px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;font-family:var(--mono);text-align:center;font-variant-numeric:tabular-nums}
+.edge .day{font-family:var(--display);font-size:30px;font-weight:700;line-height:1}
+.edge .mon{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.edge .range{font-size:11px;color:var(--muted);margin-top:2px}
+.edge .left{margin-top:8px;font-size:11.5px;padding:2px 6px;border-radius:3px;background:var(--accent-soft);color:var(--accent)}
+.edge .left.calm{background:transparent;color:var(--muted)}
+.edge .left.now{background:var(--local-soft);color:var(--local)}
+.body{padding:14px 16px;min-width:0;display:flex;flex-direction:column;gap:8px}
+.top{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.name{font-family:var(--display);font-weight:500;font-size:19px;line-height:1.2;margin:0;min-width:0;text-wrap:balance}
+.name a{color:inherit;text-decoration:none;border-bottom:1px solid var(--line)}
+.name a:hover{border-color:var(--accent)}
+.org{color:var(--muted);font-size:13.5px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:4px 16px;font-size:13.5px;margin:0}
+.facts dt{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.facts dd{margin:0 0 4px;min-width:0;overflow-wrap:anywhere}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{font:500 12px var(--body);padding:2px 8px;border-radius:999px;white-space:nowrap}
+.p-ok{background:var(--ok-soft);color:var(--ok)}
+.p-warn{background:var(--warn-soft);color:var(--warn)}
+.p-bad{background:var(--bad-soft);color:var(--bad)}
+.p-new{background:var(--accent);color:var(--on-accent)}
+.p-fee{background:var(--line);color:var(--fg)}
+.p-local{background:var(--local-soft);color:var(--local)}
+.p-kind{background:transparent;border:1px solid var(--line);color:var(--muted);text-transform:capitalize}
+.note{font-size:13.5px;color:var(--muted);margin:0;max-width:70ch}
+.toolbar.refine{margin-top:-6px}
+.installrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.installrow:has(> :not([hidden])){margin-top:6px}
+.chip.install{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.search{flex:1 1 200px;min-width:0;font:400 14px var(--body);padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--fg)}
+.search:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sep{width:1px;align-self:stretch;background:var(--line);margin:2px 2px}
+.p-ai{background:transparent;border:1px solid var(--line);color:var(--fg)}
+.p-src{background:transparent;border:1px dashed var(--line);color:var(--muted)}
+.p-limited{background:var(--warn-soft);color:var(--warn)}
+.p-type{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.conflict{font-size:13px;color:var(--warn);margin:0}
+details.rules{border-top:1px dashed var(--line);padding-top:8px}
+details.rules summary{cursor:pointer;font:600 13.5px var(--body);color:var(--accent);list-style:none;display:flex;align-items:center;gap:6px;width:max-content}
+details.rules summary::-webkit-details-marker{display:none}
+details.rules summary::before{content:"+";font:500 15px/1 var(--mono);width:14px}
+details.rules[open] summary::before{content:"\2212"}
+details.rules summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+dl.rl{display:grid;grid-template-columns:140px 1fr;gap:8px 16px;margin:12px 0 4px;font-size:14px}
+dl.rl dt{font:500 11px/1.6 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+dl.rl dd{margin:0;min-width:0;overflow-wrap:anywhere}
+dl.rl dd ul{margin:0;padding-left:18px}
+.ns{color:var(--muted);font-style:italic}
+.check{font:400 12px/1.5 var(--mono);color:var(--muted);margin-top:8px;display:flex;flex-wrap:wrap;gap:4px 14px}
+.check a{color:var(--accent)}
+@media (max-width:520px){dl.rl{grid-template-columns:1fr;gap:2px}dl.rl dd{margin-bottom:8px}}
+select{font:500 13px var(--body);background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:5px 8px}
+.frame.st-applied,.frame.st-going{border-color:var(--ok)}
+.frame.st-skip{opacity:.55}
+h2{font-family:var(--display);font-weight:500;font-size:18px;margin:34px 0 10px;color:var(--muted)}
+.groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.group{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.group .gname{font-family:var(--display);font-weight:500;font-size:16px;line-height:1.2}
+.group .gname a{color:inherit;text-decoration:none;border-bottom:1px solid var(--line)}
+.group .gname a:hover{border-color:var(--accent)}
+.group .gmeta{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.group p{margin:0;font-size:13.5px;color:var(--muted)}
+.empty{border:1px dashed var(--line);border-radius:6px;padding:28px 20px;color:var(--muted);text-align:left}
+.empty strong{color:var(--fg);display:block;font-family:var(--display);font-size:18px;margin-bottom:4px}
+.foot{margin-top:30px;font-size:12.5px;color:var(--muted);max-width:70ch}
+@media (max-width:520px){.frame{grid-template-columns:70px 1fr}.edge .day{font-size:24px}.count{margin-left:0;width:100%}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Free and paid · open to India · Hyderabad first</span>
+    <h1>Photo Contest Radar</h1>
+    <p class="sub">Photography competitions you can enter from India, plus photowalks, workshops, exhibitions and festivals around Hyderabad. Open any card's rules panel to see who can enter, file specs, AI rules and rights. A scheduled search adds new ones twice a month.</p>
+    <span class="scan" id="scan">Loading the list…</span>
+    <div class="installrow">
+      <button class="chip install" id="install" hidden>Install app</button>
+      <span class="note" id="ioshint" hidden>On iPhone: tap Share, then Add to Home Screen.</span>
+    </div>
+  </header>
+
+  <nav class="views" role="tablist" aria-label="Sections">
+    <button class="view" role="tab" id="v-contests" aria-selected="true" aria-controls="p-contests">Competitions<span class="n" id="n-contests"></span></button>
+    <button class="view" role="tab" id="v-events" aria-selected="false" aria-controls="p-events">Events near me<span class="n" id="n-events"></span></button>
+  </nav>
+
+  <!-- Competitions -->
+  <section id="p-contests" role="tabpanel" aria-labelledby="v-contests">
+    <div class="toolbar" role="group" aria-label="Filter competitions">
+      <button class="chip" data-f="open" aria-pressed="true">Open</button>
+      <button class="chip" data-f="local" aria-pressed="false">India &amp; Hyderabad</button>
+      <button class="chip" data-f="interested" aria-pressed="false">Shortlisted</button>
+      <button class="chip" data-f="applied" aria-pressed="false">Applied</button>
+      <button class="chip" data-f="skip" aria-pressed="false">Skipped</button>
+      <span class="count" id="count"></span>
+    </div>
+    <div class="toolbar refine" role="group" aria-label="Refine competitions">
+      <input class="search" id="q" type="search" placeholder="Search name, theme or organiser" aria-label="Search competitions">
+      <button class="chip" id="t-free" aria-pressed="false">Free only</button>
+      <button class="chip" id="t-ai" aria-pressed="false">AI banned</button>
+      <button class="chip" id="t-deep" aria-pressed="false">Full rules only</button>
+      <span class="sep" aria-hidden="true"></span>
+      <button class="chip" data-type="all" aria-pressed="true">All types</button>
+      <button class="chip" data-type="A" aria-pressed="false">Contests</button>
+      <button class="chip" data-type="E" aria-pressed="false">Exhibitions</button>
+      <button class="chip" data-type="G" aria-pressed="false">Grants</button>
+      <button class="chip" id="t-comm" aria-pressed="false">Community challenges</button>
+      <button class="chip" id="t-open" aria-pressed="false">Open all rules</button>
+    </div>
+    <div class="list" id="list">
+      <div class="empty"><strong>No competitions yet</strong>Each scheduled search adds the contests it finds here, with deadline, fee, eligibility and rights notes.</div>
+    </div>
+    <h2 id="closedHead" hidden>Closed</h2>
+    <div class="list" id="closed"></div>
+    <p class="foot">Fees shown are per entry where known. "Check fee" means the listing didn't state an amount. Always read the official rules before entering, especially the rights section.</p>
+    <p class="foot">Rules panels are summarised automatically from each contest's page or a directory listing, and marked "verify" until checked by hand. <b>Limited licence</b> means the organiser can reuse some entries (usually winners) without paying. <b>Rights grab</b> means broad reuse of every entry. <b>Rights unclear</b> means the terms we read didn't say.</p>
+  </section>
+
+  <!-- Events -->
+  <section id="p-events" role="tabpanel" aria-labelledby="v-events" hidden>
+    <div class="toolbar" role="group" aria-label="Filter events">
+      <button class="chip ev" data-e="upcoming" aria-pressed="true">Upcoming</button>
+      <button class="chip ev" data-e="interested" aria-pressed="false">Interested</button>
+      <button class="chip ev" data-e="going" aria-pressed="false">Going</button>
+      <button class="chip ev" data-e="skip" aria-pressed="false">Skipped</button>
+      <label class="citybar" for="city">Where
+        <select id="city">
+          <option value="Hyderabad">Hyderabad</option>
+          <option value="near">Hyderabad + trips from Hyderabad</option>
+          <option value="Online">Online</option>
+          <option value="all">Everywhere</option>
+        </select>
+      </label>
+      <span class="count" id="ecount"></span>
+    </div>
+    <div class="list" id="elist">
+      <div class="empty"><strong>No events yet</strong>The scheduled search adds photowalks, workshops, exhibitions and festivals here.</div>
+    </div>
+    <h2 id="groupsHead" hidden>Groups and sources to follow</h2>
+    <div class="groups" id="groups"></div>
+    <p class="foot">Dates, fees and seats change often, especially for community photowalks announced on Instagram or Meetup. Confirm on the organiser's page before paying.</p>
+  </section>
+</div>
+
+<script>
+(function(){
+  var MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var state={items:[],events:[],meta:null,filter:"open",efilter:"upcoming",city:"Hyderabad",view:"contests",
+    q:"",free:false,ai:false,deep:false,comm:false,type:"all",openAll:false};
+  var TYPE_NAME={A:"Contest",E:"Exhibition / publication",G:"Grant / fellowship",C:"Community challenge"};
+  var db=null;
+
+  function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+  function today(){var d=new Date();d.setHours(0,0,0,0);return d}
+  function parseDate(s){if(!s)return null;var p=String(s).split("-");if(p.length!==3)return null;var d=new Date(+p[0],+p[1]-1,+p[2]);return isNaN(d)?null:d}
+  function daysLeft(d){return Math.round((d-today())/86400000)}
+  function safeUrl(u){try{var x=new URL(u);return (x.protocol==="https:"||x.protocol==="http:")?x.href:null}catch(e){return null}}
+  function fmt(d){return d.getDate()+" "+MON[d.getMonth()]}
+  var store={get:function(k){try{return localStorage.getItem(k)}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+
+  function feePill(c){
+    var k=c.feeLevel;
+    if(k==="free")return [c.fee&&!/^free$/i.test(c.fee)?c.fee:"Free","p-ok"];
+    if(k==="low")return [c.fee||"Low fee","p-ok"];
+    if(k==="high")return [c.fee||"Paid","p-fee"];
+    return [c.fee||"Check fee","p-warn"];
+  }
+  function rightsPill(c){
+    if(c.rightsFlag==="ok")return ["You keep copyright","p-ok"];
+    if(c.rightsFlag==="warn")return ["Rights grab","p-bad"];
+    if(c.rightsFlag==="limited")return ["Limited licence","p-limited"];
+    return ["Rights unclear","p-warn"];
+  }
+  function isLocal(c){return !!(c.city||c.local) || /india only|indian subcontinent|telangana|hyderabad/i.test(c.eligibility||"")}
+
+  function statusSelect(id,cur,label,opts,coll){
+    var sel=el("select");sel.id="st-"+coll+"-"+id;sel.setAttribute("aria-label","Status for "+label);
+    opts.forEach(function(o){var op=el("option",null,o[1]);op.value=o[0];if(o[0]===cur)op.selected=true;sel.appendChild(op)});
+    sel.disabled=!db;
+    sel.addEventListener("change",function(){setStatus(coll,id,sel.value,sel)});
+    return sel;
+  }
+  function titleBox(name,url,org){
+    var box=el("div");box.style.minWidth="0";
+    var h=el("h3","name");var u=safeUrl(url);
+    if(u){var a=el("a",null,name||"Untitled");a.href=u;a.target="_blank";a.rel="noopener";h.appendChild(a)}else h.textContent=name||"Untitled";
+    box.appendChild(h);if(org)box.appendChild(el("div","org",org));return box;
+  }
+  function facts(rows){var dl=el("dl","facts");rows.forEach(function(r){if(!r[1])return;var w=el("div");w.appendChild(el("dt",null,r[0]));w.appendChild(el("dd",null,r[1]));dl.appendChild(w)});return dl}
+
+  /* ---------- contests ---------- */
+  function frame(c){
+    var st=c.status||"new";
+    var f=el("article","frame st-"+st);
+    var d=parseDate(c.deadline);
+    var edge=el("div","edge");
+    if(d){
+      edge.appendChild(el("span","day",String(d.getDate())));
+      edge.appendChild(el("span","mon",MON[d.getMonth()]+" "+String(d.getFullYear()).slice(2)));
+      var n=daysLeft(d);
+      edge.appendChild(el("span","left"+(n>21?" calm":""),n<0?"closed":n===0?"today":n+"d left"));
+    }else edge.appendChild(el("span","mon","No date"));
+    f.appendChild(edge);
+    var b=el("div","body");var top=el("div","top");
+    top.appendChild(titleBox(c.name,c.url,c.organizer));
+    top.appendChild(statusSelect(c._id,st,c.name||"contest",[["new","New"],["interested","Shortlist"],["applied","Applied"],["skip","Skip"]],"contests"));
+    b.appendChild(top);
+    var pills=el("div","pills");
+    if(st==="new"&&c.foundAt&&daysLeft(parseDate(c.foundAt)||today())>-16)pills.appendChild(el("span","pill p-new","New"));
+    if(c.city)pills.appendChild(el("span","pill p-local",c.city));else if(isLocal(c))pills.appendChild(el("span","pill p-local","India"));
+    var fp=feePill(c);pills.appendChild(el("span","pill "+fp[1],fp[0]));
+    var rp=rightsPill(c);pills.appendChild(el("span","pill "+rp[1],rp[0]));
+    if(c.aiBanned)pills.appendChild(el("span","pill p-ai","AI images banned"));
+    if(c.type&&c.type!=="A")pills.appendChild(el("span","pill p-type",TYPE_NAME[c.type]||c.type));
+    if(c.verified)pills.appendChild(el("span","pill p-ok","✓ Verified"));
+    else if(c.rules)pills.appendChild(el("span","pill p-src",c.source==="listing"?"From a listing · verify":"Auto-summarised · verify"));
+    b.appendChild(pills);
+    b.appendChild(facts([["Eligibility",c.eligibility],["Genre",c.genres],["Prize",c.prize]]));
+    if(c.notes)b.appendChild(el("p","note",c.notes));
+    if(c.dateConflict)b.appendChild(el("p","conflict","Date check: "+c.dateConflict));
+    b.appendChild(rulesPanel(c));
+    f.appendChild(b);return f;
+  }
+
+  /* ---------- rules panel ---------- */
+  function ddVal(v){
+    var dd=el("dd");
+    if(v==null||v===""||(Array.isArray(v)&&!v.length)){dd.appendChild(el("span","ns","Not stated"));return dd}
+    if(Array.isArray(v)){var ul=el("ul");v.forEach(function(x){ul.appendChild(el("li",null,String(x)))});dd.appendChild(ul);return dd}
+    dd.textContent=String(v);return dd;
+  }
+  function rulesPanel(c){
+    var d=el("details","rules");if(state.openAll)d.open=true;
+    d.appendChild(el("summary",null,"Rules & requirements"));
+    var R=c.rules,dl=el("dl","rl");
+    function row(k,v){dl.appendChild(el("dt",null,k));dl.appendChild(ddVal(v))}
+    if(!R){
+      row("Who can enter",c.eligibility);row("Cost",c.fee);row("Theme",c.genres);row("Prizes",c.prize);
+      row("Full rules","Not extracted yet. The next scheduled search fills this in; until then, read the official page.");
+    }else if(R.basic){
+      row("Type",TYPE_NAME[c.type]||"Contest");row("Who can enter",R.eligibility);row("Cost",R.cost);
+      row("Theme",R.themes);row("Prizes",R.prizes);if(R.note)row("Watch out",R.note);
+      row("Full rules","Not extracted yet. File specs, editing and AI rules, and rights terms are on the official page.");
+    }else{
+      row("Eligibility",R.eligibility);row("Cost",R.cost);row("Submission",R.submission);row("Editing & AI",R.editing);
+      row("Photo date",R.photoDate);row("Theme",R.themes);row("Key dates",R.dates);row("Prizes",R.prizes);row("Your rights",R.rightsText);
+    }
+    d.appendChild(dl);
+    var ck=el("div","check");
+    ck.appendChild(el("span",null,c.checkedAt?"Last checked "+fmtLong(c.checkedAt):"Not checked yet"));
+    var u=safeUrl(c.url);
+    if(u){var a=el("a",null,(R&&!R.basic)?"Official rules ↗":"Listing / contest page ↗");a.href=u;a.target="_blank";a.rel="noopener";ck.appendChild(a)}
+    d.appendChild(ck);
+    return d;
+  }
+  function fmtLong(s){var d=parseDate(s);return d?d.getDate()+" "+MON[d.getMonth()]+" "+d.getFullYear():s}
+  function refineMatch(c){
+    var t=c.type||"A";
+    if(t==="C"&&!state.comm)return false;
+    if(state.type!=="all"&&t!==state.type&&!(t==="C"&&state.comm))return false;
+    if(state.free&&!(c.free||c.feeLevel==="free"))return false;
+    if(state.ai&&!c.aiBanned)return false;
+    if(state.deep&&!(c.rules&&!c.rules.basic))return false;
+    var q=state.q.trim().toLowerCase();
+    if(q&&[c.name,c.organizer,c.genres,c.eligibility,c.tags].join(" ").toLowerCase().indexOf(q)<0)return false;
+    return true;
+  }
+  function renderContests(){
+    var list=document.getElementById("list"),closed=document.getElementById("closed");
+    list.textContent="";closed.textContent="";
+    var t=today();
+    var items=state.items.slice().sort(function(a,b){return String(a.deadline||"9999").localeCompare(String(b.deadline||"9999"))});
+    var open=[],shut=[];
+    items.forEach(function(c){var d=parseDate(c.deadline);(d&&d<t?shut:open).push(c)});
+    var f=state.filter;
+    var shown=open.filter(function(c){var s=c.status||"new";
+      if(!refineMatch(c))return false;
+      if(f==="open")return s!=="skip";
+      if(f==="local")return s!=="skip"&&isLocal(c);
+      return s===f});
+    shown.forEach(function(c){list.appendChild(frame(c))});
+    if(!shown.length){
+      var e=el("div","empty");
+      e.appendChild(el("strong",null,state.items.length?"Nothing in this view":"No competitions yet"));
+      e.appendChild(document.createTextNode(state.items.length?"Change the filter above, or wait for the next scheduled search.":"Each scheduled search adds the contests it finds here, with deadline, fee, eligibility and rights notes."));
+      list.appendChild(e);
+    }
+    var main=open.filter(function(c){return c.type!=="C"});
+    document.getElementById("count").textContent=shown.length+" of "+(state.comm?open:main).length+" open";
+    document.getElementById("n-contests").textContent=main.filter(function(c){return (c.status||"new")!=="skip"}).length||"";
+    var ch=document.getElementById("closedHead");
+    var recentShut=shut.filter(function(c){return daysLeft(parseDate(c.deadline))>-60&&c.type!=="C"});
+    ch.hidden=!recentShut.length;
+    recentShut.reverse().forEach(function(c){closed.appendChild(frame(c))});
+  }
+
+  /* ---------- events ---------- */
+  function cityMatch(e){var c=state.city,city=e.city||"";
+    if(c==="all")return true;
+    if(c==="Online")return /online/i.test(city);
+    if(c==="Hyderabad")return /hyderabad|secunderabad/i.test(city);
+    if(c==="near")return /hyderabad|secunderabad/i.test(city)||/from hyderabad/i.test(e.notes||"")||/trip from hyderabad/i.test(e.kind||"")||e.fromHyderabad==="yes";
+    return true}
+  function eventFrame(e){
+    var st=e.status||"new";
+    var f=el("article","frame st-"+st);
+    var s=parseDate(e.startDate),en=parseDate(e.endDate);
+    var edge=el("div","edge");
+    if(s){
+      edge.appendChild(el("span","day",String(s.getDate())));
+      edge.appendChild(el("span","mon",MON[s.getMonth()]+" "+String(s.getFullYear()).slice(2)));
+      if(en&&en>s)edge.appendChild(el("span","range","to "+fmt(en)));
+      var n=daysLeft(s),ne=en?daysLeft(en):n;
+      var t=n>0?(n+"d away"):(ne>=0?"on now":"over");
+      edge.appendChild(el("span","left"+(n<=0&&ne>=0?" now":n>21?" calm":""),t));
+    }else edge.appendChild(el("span","mon","Date TBA"));
+    f.appendChild(edge);
+    var b=el("div","body");var top=el("div","top");
+    top.appendChild(titleBox(e.name,e.url,e.organizer));
+    top.appendChild(statusSelect(e._id,st,e.name||"event",[["new","New"],["interested","Interested"],["going","Going"],["skip","Skip"]],"events"));
+    b.appendChild(top);
+    var pills=el("div","pills");
+    if(st==="new"&&e.foundAt&&daysLeft(parseDate(e.foundAt)||today())>-16)pills.appendChild(el("span","pill p-new","New"));
+    if(e.kind)pills.appendChild(el("span","pill p-kind",e.kind));
+    if(e.city)pills.appendChild(el("span","pill p-local",e.city));
+    if(e.fee||e.feeLevel){var fp=feePill(e);pills.appendChild(el("span","pill "+fp[1],fp[0]))}
+    b.appendChild(pills);
+    b.appendChild(facts([["Where",e.venue],["When",e.when]]));
+    if(e.notes)b.appendChild(el("p","note",e.notes));
+    f.appendChild(b);return f;
+  }
+  function renderEvents(){
+    var list=document.getElementById("elist");list.textContent="";
+    var dated=state.events.filter(function(e){return e.kind!=="community"});
+    var t=today();
+    var upcoming=dated.filter(function(e){var en=parseDate(e.endDate)||parseDate(e.startDate);return !en||en>=t});
+    upcoming.sort(function(a,b){return String(a.startDate||"9999").localeCompare(String(b.startDate||"9999"))});
+    var f=state.efilter;
+    var shown=upcoming.filter(function(e){var s=e.status||"new";if(!cityMatch(e))return false;if(f==="upcoming")return s!=="skip";return s===f});
+    shown.forEach(function(e){list.appendChild(eventFrame(e))});
+    if(!shown.length){var em=el("div","empty");em.appendChild(el("strong",null,state.events.length?"Nothing in this view":"No events yet"));
+      em.appendChild(document.createTextNode(state.events.length?"Try another place or filter above.":"The scheduled search adds photowalks, workshops, exhibitions and festivals here."));list.appendChild(em)}
+    document.getElementById("ecount").textContent=shown.length+" of "+upcoming.length+" upcoming";
+    document.getElementById("n-events").textContent=upcoming.filter(function(e){return (e.status||"new")!=="skip"&&/hyderabad|secunderabad/i.test(e.city||"")}).length||"";
+    var g=document.getElementById("groups");g.textContent="";
+    var groups=state.events.filter(function(e){return e.kind==="community"}).sort(function(a,b){return String(a.name).localeCompare(String(b.name))});
+    document.getElementById("groupsHead").hidden=!groups.length;
+    groups.forEach(function(e){var c=el("div","group");var n=el("div","gname");var u=safeUrl(e.url);
+      if(u){var a=el("a",null,e.name);a.href=u;a.target="_blank";a.rel="noopener";n.appendChild(a)}else n.textContent=e.name;
+      c.appendChild(n);var meta=[e.city,e.when].filter(Boolean).join(" · ");if(meta)c.appendChild(el("div","gmeta",meta));
+      if(e.notes)c.appendChild(el("p",null,e.notes));g.appendChild(c)});
+  }
+
+  function render(){
+    renderContests();renderEvents();
+    var s=document.getElementById("scan");
+    if(state.meta&&state.meta.lastScan){
+      s.textContent="Last search: "+state.meta.lastScan+(state.meta.nextScan?" · Next: "+state.meta.nextScan:"")+(state.meta.summary?" · "+state.meta.summary:"");
+    }else if(db)s.textContent="No search has run yet.";
+  }
+
+  /* Shortlist / applied / going choices live on this device only. */
+  var STATUS_KEY="pcr-status";
+  function loadStatuses(){try{return JSON.parse(localStorage.getItem(STATUS_KEY)||"{}")||{}}catch(e){return {}}}
+  function setStatus(coll,id,val,sel){
+    var all=loadStatuses();all[coll+"/"+id]=val;
+    try{localStorage.setItem(STATUS_KEY,JSON.stringify(all))}catch(e){sel.title="Couldn't save on this device."}
+    var list=coll==="events"?state.events:state.items;
+    list.forEach(function(x){if(x._id===id)x.status=val});
+    render();
+  }
+
+  /* ---------- controls ---------- */
+  function setView(v){state.view=v;store.set("pcr-view",v);
+    ["contests","events"].forEach(function(x){document.getElementById("v-"+x).setAttribute("aria-selected",String(x===v));document.getElementById("p-"+x).hidden=x!==v})}
+  document.getElementById("v-contests").addEventListener("click",function(){setView("contests")});
+  document.getElementById("v-events").addEventListener("click",function(){setView("events")});
+  document.querySelectorAll(".chip[data-f]").forEach(function(b){b.addEventListener("click",function(){state.filter=b.dataset.f;
+    document.querySelectorAll(".chip[data-f]").forEach(function(x){x.setAttribute("aria-pressed",String(x===b))});store.set("pcr-filter",state.filter);renderContests()})});
+  document.querySelectorAll(".chip[data-e]").forEach(function(b){b.addEventListener("click",function(){state.efilter=b.dataset.e;
+    document.querySelectorAll(".chip[data-e]").forEach(function(x){x.setAttribute("aria-pressed",String(x===b))});store.set("pcr-efilter",state.efilter);renderEvents()})});
+  function toggle(id,key,label){var b=document.getElementById(id);b.addEventListener("click",function(){
+    state[key]=!state[key];b.setAttribute("aria-pressed",String(state[key]));
+    if(label)b.textContent=state[key]?label[1]:label[0];renderContests()})}
+  toggle("t-free","free");toggle("t-ai","ai");toggle("t-deep","deep");toggle("t-comm","comm");
+  toggle("t-open","openAll",["Open all rules","Close all rules"]);
+  document.querySelectorAll(".chip[data-type]").forEach(function(b){b.addEventListener("click",function(){state.type=b.dataset.type;
+    document.querySelectorAll(".chip[data-type]").forEach(function(x){x.setAttribute("aria-pressed",String(x===b))});renderContests()})});
+  document.getElementById("q").addEventListener("input",function(e){state.q=e.target.value;renderContests()});
+  var city=document.getElementById("city");city.addEventListener("change",function(){state.city=city.value;store.set("pcr-city",city.value);renderEvents()});
+  (function restore(){var f=store.get("pcr-filter");if(f){var b=document.querySelector('.chip[data-f="'+f+'"]');if(b)b.click()}
+    var e=store.get("pcr-efilter");if(e){var b2=document.querySelector('.chip[data-e="'+e+'"]');if(b2)b2.click()}
+    var c=store.get("pcr-city");if(c){city.value=c;state.city=city.value||"Hyderabad"}
+    var v=location.hash==="#events"?"events":location.hash==="#contests"?"contests":store.get("pcr-view");if(v==="events"||v==="contests")setView(v)})();
+  render();
+
+  (async function(){
+    try{
+      var r=await fetch("/data/radar.json",{cache:"no-cache"});
+      if(!r.ok)throw new Error(r.status);
+      var data=await r.json(),st=loadStatuses();
+      function withStatus(coll,arr){return (arr||[]).map(function(o){var s=st[coll+"/"+o._id];if(s)o.status=s;return o})}
+      db=true;
+      state.items=withStatus("contests",data.contests);
+      state.events=withStatus("events",data.events);
+      state.meta=data.meta||null;
+      render();
+    }catch(e){document.getElementById("scan").textContent="The list couldn't load. Check your connection and reload."}
+  })();
+
+  /* ---------- install ---------- */
+  if("serviceWorker" in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){})});
+  var deferred=null,ib=document.getElementById("install");
+  window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();deferred=e;ib.hidden=false});
+  ib.addEventListener("click",async function(){if(!deferred)return;deferred.prompt();try{await deferred.userChoice}catch(e){}deferred=null;ib.hidden=true});
+  window.addEventListener("appinstalled",function(){ib.hidden=true});
+  var standalone=window.matchMedia("(display-mode: standalone)").matches||navigator.standalone;
+  if(/iphone|ipad|ipod/i.test(navigator.userAgent)&&!standalone)document.getElementById("ioshint").hidden=false;
+})();
+</script>
+
+</body></html>

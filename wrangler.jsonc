@@ -1,0 +1,17 @@
+// Cloudflare Worker config. One Worker serves the whole app:
+//   - the website: the files in ./public, delivered from the nearest data centre
+//   - security headers and a short cache on the contest list (worker/worker.js)
+// No secrets or bindings to set up.
+{
+  "name": "photo-contest-radar",
+  "main": "worker/worker.js",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  "observability": { "enabled": true },
+  "assets": {
+    "directory": "./public/",
+    "binding": "ASSETS",
+    // Run the Worker for every request so security headers are always added.
+    "run_worker_first": true
+  }
+}
